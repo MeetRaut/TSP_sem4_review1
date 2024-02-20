@@ -1,8 +1,8 @@
-# main.py
 import tkinter as tk
 import turtle
 import BnB
 import NN
+import math
 
 class TSPSolverApp:
     def __init__(self, master):
@@ -41,36 +41,50 @@ class TSPSolverApp:
         window = turtle.Screen()
         window.title("TSP Solution")
 
-        turtle.delay(500)
+        turtle.delay(0)
 
         t = turtle.Turtle()
         t.speed(0)
 
-        # Draw nodes
-        for i in range(len(self.distance_matrix)):
+        num_cities = len(self.distance_matrix)
+        radius = 200
+        angle = 360 / num_cities
+
+        city_coordinates = []
+
+        # Draw nodes in a circular pattern and connect them
+        for i in range(num_cities):
+            x = radius * math.cos(math.radians(i * angle - 90))
+            y = radius * math.sin(math.radians(i * angle - 90))
             t.penup()
-            t.goto(i * 100 - 200, 100)
+            t.goto(x, y)
             t.pendown()
             t.circle(5)
-            t.penup()
-            t.goto(i * 100 - 200, 90)
-            t.write(f"{i}")
+            city_coordinates.append((x, y))
 
         # Draw optimal path
         t.penup()
-        t.goto(path[0] * 100 - 200, 100)
+        t.goto(city_coordinates[path[0]][0], city_coordinates[path[0]][1])
         t.pendown()
-        for city in path[1:]:
-            t.goto(city * 100 - 200, 100)
-        t.goto(path[0] * 100 - 200, 100)
+        for city_index in path[1:]:
+            t.goto(city_coordinates[city_index][0], city_coordinates[city_index][1])
+        t.goto(city_coordinates[path[0]][0], city_coordinates[path[0]][1])
+
+        # Write numbers inside circles
+        t.penup()
+        for i, (x, y) in enumerate(city_coordinates):
+            t.goto(x, y - 20)  # Adjust y position to move the number inside the circle
+            t.write(f"{i}", align="center", font=("Arial", 10, "bold"))
 
         # State optimal distance
         t.penup()
-        t.goto(0, -200)
+        t.goto(0, -radius - 40)
         t.pendown()
         t.write(f"Optimal Distance: {distance}", align="center", font=("Arial", 16, "normal"))
 
         window.mainloop()
+
+
 
 if __name__ == "__main__":
     root = tk.Tk()
