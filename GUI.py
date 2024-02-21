@@ -10,10 +10,11 @@ class TSPSolverApp:
         master.title("TSP Solver")
 
         self.distance_matrix = [
-            [0, 10, 15, 20],
-            [10, 0, 35, 25],
-            [15, 35, 0, 30],
-            [20, 25, 30, 0]
+            [0, 2, 100, 123, 87],
+            [100, 0, 2, 18, 7],
+            [2, 100, 0, 6, 7],
+            [12, 0, 0, 0, 5],
+            [45, 0, 0, 2, 0]
         ]
 
         self.radio_var = tk.IntVar()
@@ -41,10 +42,11 @@ class TSPSolverApp:
         window = turtle.Screen()
         window.title("TSP Solution")
 
-        turtle.delay(0)
+        turtle.delay(200)
 
         t = turtle.Turtle()
         t.speed(0)
+        t.hideturtle()
 
         num_cities = len(self.distance_matrix)
         radius = 200
@@ -59,7 +61,7 @@ class TSPSolverApp:
             t.penup()
             t.goto(x, y)
             t.pendown()
-            t.circle(5)
+            t.circle(10)
             city_coordinates.append((x, y))
 
         # Draw optimal path
@@ -73,8 +75,8 @@ class TSPSolverApp:
         # Write numbers inside circles
         t.penup()
         for i, (x, y) in enumerate(city_coordinates):
-            t.goto(x, y - 20)  # Adjust y position to move the number inside the circle
-            t.write(f"{i}", align="center", font=("Arial", 10, "bold"))
+            t.goto(x + 2, y + 5)  # Adjust y position to move the number inside the circle
+            t.write(f"{i+1}", align="center", font=("Arial", 10, "bold"))
 
         # State optimal distance
         t.penup()
@@ -83,9 +85,7 @@ class TSPSolverApp:
         t.write(f"Optimal Distance: {distance}", align="center", font=("Arial", 16, "normal"))
 
         window.mainloop()
-
-
-
+        
 if __name__ == "__main__":
     root = tk.Tk()
     app = TSPSolverApp(root)
