@@ -64,6 +64,12 @@ class TSPSolverApp:
             t.circle(10)
             city_coordinates.append((x, y))
 
+        # Write numbers inside circles
+        t.penup()
+        for i, (x, y) in enumerate(city_coordinates):
+            t.goto(x + 2, y + 5)  # Adjust y position to move the number inside the circle
+            t.write(f"{i+1}", align="center", font=("Arial", 10, "bold"))
+
         # Draw optimal path
         t.penup()
         t.goto(city_coordinates[path[0]][0], city_coordinates[path[0]][1])
@@ -72,17 +78,19 @@ class TSPSolverApp:
             t.goto(city_coordinates[city_index][0], city_coordinates[city_index][1])
         t.goto(city_coordinates[path[0]][0], city_coordinates[path[0]][1])
 
-        # Write numbers inside circles
-        t.penup()
-        for i, (x, y) in enumerate(city_coordinates):
-            t.goto(x + 2, y + 5)  # Adjust y position to move the number inside the circle
-            t.write(f"{i+1}", align="center", font=("Arial", 10, "bold"))
+        
 
         # State optimal distance
         t.penup()
         t.goto(0, -radius - 40)
         t.pendown()
         t.write(f"Optimal Distance: {distance}", align="center", font=("Arial", 16, "normal"))
+
+        # State optimal path
+        t.penup()
+        t.goto(0, -radius - 80)
+        t.pendown()
+        t.write(f"Optimal Path: {' -> '.join(map(lambda x: str(x + 1), path))}", align="center", font=("Arial", 12, "normal"))
 
         window.mainloop()
         
