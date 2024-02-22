@@ -1,8 +1,32 @@
 import tkinter as tk
+from PIL import ImageTk, Image
 import turtle
 import BnB
 import NN
 import math
+
+class SplashScreen:
+    def __init__(self, master):
+        self.master = master
+        master.title("TSP Solver")
+
+        # Load and display image
+        image = Image.open("splash_image.png")
+        image = image.resize((300, 300))
+        self.splash_image = ImageTk.PhotoImage(image)
+        splash_label = tk.Label(master, image=self.splash_image)
+        splash_label.pack()
+
+        # Add start button
+        self.start_button = tk.Button(master, text="Start", command=self.start_solver)
+        self.start_button.pack()
+
+    def start_solver(self):
+        self.master.destroy()
+        root = tk.Tk()
+        app = TSPSolverApp(root)
+        root.mainloop()
+        
 
 class TSPSolverApp:
     def __init__(self, master):
@@ -55,7 +79,7 @@ class TSPSolverApp:
             row_entry = []
             for j in range(num_cities):
                 if i == j:  # Diagonal elements should be disabled and set to 0
-                    entry = tk.Entry(self.matrix_input_panel, width=5, state="disabled")
+                    entry = tk.Entry(self.matrix_input_panel, width=5, state="normal")
                     entry.insert(0, "0")
                 else:
                     entry = tk.Entry(self.matrix_input_panel, width=5)
@@ -167,5 +191,5 @@ class TSPSolverApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = TSPSolverApp(root)
+    app = SplashScreen(root)
     root.mainloop()
