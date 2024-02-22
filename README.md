@@ -28,7 +28,7 @@ The Traveling Salesman Problem (TSP) Solver is a Python application designed to 
 ## Installation
 1. Clone the repository from GitHub using the following command:
 ```bash
-git clone https://github.com/your-username/tsp-solver.git
+git clone https://github.com/MeetRaut/SEM_4_MPR_TSP.git
 ```
 ## Authors
 - [Amit Shinde](https://github.com/Amit-Shinde4)
