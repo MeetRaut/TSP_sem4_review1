@@ -124,13 +124,19 @@ class TSPSolverApp:
             path, optimal_distance = solver.tsp_nearest_neighbor()
             algorithm_name = "Nearest Neighbor"
 
+        # Determine time complexity based on the algorithm used
+        if choice == 1:
+            time_complexity = "O((n-1)!)"
+        else:
+            time_complexity = "O(n^2)"
+
         if self.distance_matrix:
-            self.show_turtle_graphics(path, optimal_distance, algorithm_name)
+            self.show_turtle_graphics(path, optimal_distance, algorithm_name, time_complexity)
 
         else:
             print("Failed to generate distance matrix for the selected number of cities.")
 
-    def show_turtle_graphics(self, path, distance, algorithm_name):
+    def show_turtle_graphics(self, path, distance, algorithm_name, time_complexity):
         if self.distance_matrix is None:
             print("Distance matrix not found.")
             return
@@ -162,7 +168,7 @@ class TSPSolverApp:
         # Write numbers inside circles
         t.penup()
         for i, (x, y) in enumerate(city_coordinates):
-            t.goto(x + 2, y + 5)  # Adjust y position to move the number inside the circle
+            t.goto(x + 1, y + 3)  # Adjust y position to move the number inside the circle
             t.write(f"{i+1}", align="center", font=("Arial", 10, "bold"))
 
         # Draw optimal path
@@ -186,6 +192,12 @@ class TSPSolverApp:
         t.pendown()
         return_path = path + [path[0]]
         t.write(f"Optimal Path: {' -> '.join(map(lambda x: str(x + 1), return_path))}", align="center", font=("Arial", 12, "normal"))
+
+        # Display time complexity        
+        t.penup()
+        t.goto(0, -radius - 100)
+        t.pendown()
+        t.write(f"Time Complexity ({algorithm_name}): {time_complexity}", align="center", font=("Arial", 12, "normal"))
 
         window.mainloop()
 
