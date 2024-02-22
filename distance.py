@@ -1,30 +1,13 @@
-# distance.py
+#distance.py
+import random
 
-distance_matrices = {
-    3: [
-        [0, 2, 100],
-        [100, 0, 2],
-        [2, 100, 0]
-    ],
-    4: [
-        [0, 2, 100, 123],
-        [100, 0, 2, 18],
-        [2, 100, 0, 6],
-        [12, 0, 0, 0]
-    ],
-    5: [
-        [0, 2, 100, 123, 87],
-        [100, 0, 2, 18, 7],
-        [2, 100, 0, 6, 7],
-        [12, 0, 0, 0, 5],
-        [45, 0, 0, 2, 0]
-    ],
-    6: [
-        [0, 2, 100, 123, 87, 24],
-        [100, 0, 2, 18, 7, 36],
-        [2, 100, 0, 6, 7, 8],
-        [12, 0, 0, 0, 5, 42],
-        [45, 0, 0, 2, 0, 12],
-        [15, 12, 65, 14, 23, 0]
-    ]
-}
+def generate_distance_matrix(num_cities):
+    if num_cities < 2:
+        raise ValueError("Number of cities must be at least 2")
+    # Generate a num_cities x num_cities matrix with random distances
+    distance_matrix = [[random.randint(0, 100) if i != j else 0 for j in range(num_cities)] for i in range(num_cities)]
+
+    for row in distance_matrix:
+        print(row)
+
+    return distance_matrix

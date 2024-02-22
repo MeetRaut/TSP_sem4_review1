@@ -1,12 +1,10 @@
-# main.py
-
 import tkinter as tk
 from tkinter import ttk
 import turtle
 import BnB
 import NN
 import math
-import distance  # It's not getting used from here but still keeping it here to be safe
+import distance  # Importing distance.py module
 
 class TSPSolverApp:
     def __init__(self, master):
@@ -22,10 +20,8 @@ class TSPSolverApp:
         cities_label = tk.Label(input_panel, text="Number of Cities:")
         cities_label.grid(row=0, column=0)
 
-        self.cities_options = ["3", "4", "5", "6"]
-        self.cities_combobox = ttk.Combobox(input_panel, values=self.cities_options, width=5)
-        self.cities_combobox.grid(row=0, column=1)
-        self.cities_combobox.current(0)  # Set the default selection to the first option
+        self.cities_entry = tk.Entry(input_panel)
+        self.cities_entry.grid(row=0, column=1)
 
         self.branch_and_bound_radio = tk.Radiobutton(input_panel, text="Branch and Bound", variable=self.radio_var, value=1)
         self.nearest_neighbor_radio = tk.Radiobutton(input_panel, text="Nearest Neighbor", variable=self.radio_var, value=2)
@@ -37,22 +33,46 @@ class TSPSolverApp:
 
     def solve_tsp(self):
         import distance  # Importing the distance module here
-        num_cities = int(self.cities_combobox.get())
-        self.distance_matrix = distance.distance_matrices.get(num_cities)  # Store distance_matrix as attribute
+        num_cities_str = self.cities_entry.get()
+        try:
+            num_cities = int(num_cities_str)
+        except ValueError:
+            print("Please enter a valid integer for the number of cities.")
+            return
+
+        # Ensure num_cities is at least 2
+        if num_cities < 2:
+            print("Number of cities must be at least 2.")
+            return
+
+        self.distance_matrix = distance.generate_distance_matrix(num_cities)  # Generate distance matrix based on number of cities
         if self.distance_matrix:
+            
             choice = self.radio_var.get()
             if choice == 1:
                 solver = BnB.BranchAndBound(self.distance_matrix)
-                path, distance = solver.tsp_branch_and_bound()
+                path, optimal_distance = solver.tsp_branch_and_bound()
+                algorithm_name = "Branch and Bound"
             else:
                 solver = NN.NearestNeighbor(self.distance_matrix)
-                path, distance = solver.tsp_nearest_neighbor()
+                path, optimal_distance = solver.tsp_nearest_neighbor()
+                algorithm_name = "Nearest Neighbor"
+            
 
-            self.show_turtle_graphics(path, distance)
+            
+            # Determine time complexity based on the algorithm used
+            if choice == 1:
+                time_complexity = "O((n-1)!)"
+            else:
+                time_complexity = "O(n^2)"
+
+            self.show_turtle_graphics(path, optimal_distance, algorithm_name, time_complexity)
+
         else:
-            print("Distance matrix not found for the selected number of cities.")
+            print("Failed to generate distance matrix for the selected number of cities.")
 
-    def show_turtle_graphics(self, path, distance):
+
+    def show_turtle_graphics(self, path, distance, algorithm_name, time_complexity):
         if self.distance_matrix is None:
             print("Distance matrix not found.")
             return
@@ -100,13 +120,20 @@ class TSPSolverApp:
         t.penup()
         t.goto(0, -radius - 40)
         t.pendown()
-        t.write(f"Optimal Distance: {distance}", align="center", font=("Arial", 16, "normal"))
+        t.write(f"Optimal Distance: {distance}", align="center", font=("Arial", 12, "normal"))
 
         # State optimal path
         t.penup()
-        t.goto(0, -radius - 80)
+        t.goto(0, -radius - 70)
         t.pendown()
-        t.write(f"Optimal Path: {' -> '.join(map(lambda x: str(x + 1), path))}", align="center", font=("Arial", 12, "normal"))
+        return_path = path + [path[0]]
+        t.write(f"Optimal Path: {' -> '.join(map(lambda x: str(x + 1), return_path))}", align="center", font=("Arial", 12, "normal"))
+
+        # Display time complexity        
+        t.penup()
+        t.goto(0, -radius - 100)
+        t.pendown()
+        t.write(f"Time Complexity ({algorithm_name}): {time_complexity}", align="center", font=("Arial", 12, "normal"))
 
         window.mainloop()
         
