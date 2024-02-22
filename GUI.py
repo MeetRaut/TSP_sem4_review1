@@ -1,17 +1,14 @@
 import tkinter as tk
-from tkinter import ttk
 import turtle
 import BnB
 import NN
 import math
-import distance  # Importing distance.py module
 
 class TSPSolverApp:
     def __init__(self, master):
         self.master = master
         master.title("TSP Solver")
-        self.distance_matrix = None  # Initialize distance_matrix attribute
-
+        self.distance_matrix = None
         self.radio_var = tk.IntVar()
 
         input_panel = tk.Frame(master)
@@ -23,16 +20,17 @@ class TSPSolverApp:
         self.cities_entry = tk.Entry(input_panel)
         self.cities_entry.grid(row=0, column=1)
 
-        self.branch_and_bound_radio = tk.Radiobutton(input_panel, text="Branch and Bound", variable=self.radio_var, value=1)
-        self.nearest_neighbor_radio = tk.Radiobutton(input_panel, text="Nearest Neighbor", variable=self.radio_var, value=2)
-        self.solve_button = tk.Button(input_panel, text="Solve TSP", command=self.solve_tsp)
+        self.submit_cities_button = tk.Button(input_panel, text="Submit", command=self.generate_distance_matrix_input)
+        self.submit_cities_button.grid(row=0, column=2)
 
-        self.branch_and_bound_radio.grid(row=1, column=0)
-        self.nearest_neighbor_radio.grid(row=1, column=1)
-        self.solve_button.grid(row=2, column=0, columnspan=2)
+        self.matrix_input_panel = None
+        self.matrix_submit_button = None
 
-    def solve_tsp(self):
-        import distance  # Importing the distance module here
+        self.branch_and_bound_radio = tk.Radiobutton(master, text="Branch and Bound", variable=self.radio_var, value=1)
+        self.nearest_neighbor_radio = tk.Radiobutton(master, text="Nearest Neighbor", variable=self.radio_var, value=2)
+        self.solve_button = tk.Button(master, text="Solve TSP", command=self.solve_tsp)
+
+    def generate_distance_matrix_input(self):
         num_cities_str = self.cities_entry.get()
         try:
             num_cities = int(num_cities_str)
@@ -40,39 +38,75 @@ class TSPSolverApp:
             print("Please enter a valid integer for the number of cities.")
             return
 
-        # Ensure num_cities is at least 2
         if num_cities < 2:
             print("Number of cities must be at least 2.")
             return
 
-        self.distance_matrix = distance.generate_distance_matrix(num_cities)  # Generate distance matrix based on number of cities
+        if self.matrix_input_panel:
+            self.matrix_input_panel.destroy()
+        if self.matrix_submit_button:
+            self.matrix_submit_button.destroy()
+
+        self.matrix_input_panel = tk.Frame(self.master)
+        self.matrix_input_panel.grid(row=1, column=0, columnspan=2)
+
+        self.distance_matrix_entry = []
+        for i in range(num_cities):
+            row_entry = []
+            for j in range(num_cities):
+                if i == j:  # Diagonal elements should be disabled and set to 0
+                    entry = tk.Entry(self.matrix_input_panel, width=5, state="disabled")
+                    entry.insert(0, "0")
+                else:
+                    entry = tk.Entry(self.matrix_input_panel, width=5)
+                entry.grid(row=i, column=j)
+                row_entry.append(entry)
+            self.distance_matrix_entry.append(row_entry)
+
+        self.matrix_submit_button = tk.Button(self.matrix_input_panel, text="Submit Matrix", command=self.submit_distance_matrix)
+        self.matrix_submit_button.grid(row=num_cities, column=0, columnspan=num_cities)
+
+    def submit_distance_matrix(self):
+        num_cities = len(self.distance_matrix_entry)
+        distance_matrix = []
+        for i in range(num_cities):
+            row = []
+            for j in range(num_cities):
+                try:
+                    value = int(self.distance_matrix_entry[i][j].get())
+                except ValueError:
+                    print("Please enter valid integers for distances.")
+                    return
+                row.append(value)
+            distance_matrix.append(row)
+        self.distance_matrix = distance_matrix
+
+        self.branch_and_bound_radio.grid(row=2, column=0)
+        self.nearest_neighbor_radio.grid(row=2, column=1)
+        self.solve_button.grid(row=3, column=0, columnspan=2)
+
+    def solve_tsp(self):
+        if not self.distance_matrix:
+            print("Distance matrix not found.")
+            return
+
+        choice = self.radio_var.get()
+        if choice == 1:
+            solver = BnB.BranchAndBound(self.distance_matrix)
+            path, optimal_distance = solver.tsp_branch_and_bound()
+            algorithm_name = "Branch and Bound"
+        else:
+            solver = NN.NearestNeighbor(self.distance_matrix)
+            path, optimal_distance = solver.tsp_nearest_neighbor()
+            algorithm_name = "Nearest Neighbor"
+
         if self.distance_matrix:
-            
-            choice = self.radio_var.get()
-            if choice == 1:
-                solver = BnB.BranchAndBound(self.distance_matrix)
-                path, optimal_distance = solver.tsp_branch_and_bound()
-                algorithm_name = "Branch and Bound"
-            else:
-                solver = NN.NearestNeighbor(self.distance_matrix)
-                path, optimal_distance = solver.tsp_nearest_neighbor()
-                algorithm_name = "Nearest Neighbor"
-            
-
-            
-            # Determine time complexity based on the algorithm used
-            if choice == 1:
-                time_complexity = "O((n-1)!)"
-            else:
-                time_complexity = "O(n^2)"
-
-            self.show_turtle_graphics(path, optimal_distance, algorithm_name, time_complexity)
+            self.show_turtle_graphics(path, optimal_distance, algorithm_name)
 
         else:
             print("Failed to generate distance matrix for the selected number of cities.")
 
-
-    def show_turtle_graphics(self, path, distance, algorithm_name, time_complexity):
+    def show_turtle_graphics(self, path, distance, algorithm_name):
         if self.distance_matrix is None:
             print("Distance matrix not found.")
             return
@@ -129,14 +163,8 @@ class TSPSolverApp:
         return_path = path + [path[0]]
         t.write(f"Optimal Path: {' -> '.join(map(lambda x: str(x + 1), return_path))}", align="center", font=("Arial", 12, "normal"))
 
-        # Display time complexity        
-        t.penup()
-        t.goto(0, -radius - 100)
-        t.pendown()
-        t.write(f"Time Complexity ({algorithm_name}): {time_complexity}", align="center", font=("Arial", 12, "normal"))
-
         window.mainloop()
-        
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = TSPSolverApp(root)
